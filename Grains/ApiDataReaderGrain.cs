@@ -9,7 +9,7 @@ namespace Grains
     public class ApiDataReaderGrain : Grain, IApiDataReaderGrain
     {
         private string _payload;
-        private IHttpClientFactory _clientFactory;
+        private readonly IHttpClientFactory _clientFactory;
 
         public ApiDataReaderGrain(IHttpClientFactory clientFactory)
         {

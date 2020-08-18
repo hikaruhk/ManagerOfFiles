@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="*" />
-    <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator.Build" Version="*" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.2.2" />
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.2.2" />
   </ItemGroup>
 
 </Project>

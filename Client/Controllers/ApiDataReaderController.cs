@@ -11,8 +11,8 @@ namespace Client.Controllers
     [Route("api/dataloader")]
     public class ApiDataReaderController : Controller
     {
-        private IClusterClient _orleansClient;
-        private ClientConfiguration _clientConfiguration;
+        private readonly IClusterClient _orleansClient;
+        private readonly ClientConfiguration _clientConfiguration;
 
         public ApiDataReaderController(
             IClusterClient orleansClient,

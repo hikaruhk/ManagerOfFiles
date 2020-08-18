@@ -11,8 +11,8 @@ namespace OrleansTests.Client
     [TestFixture, Category("BuildingUri")]
     public class ClientConfigurationExtensionsTests
     {
-        [TestCase("abc", "https://google.com", "Test", "V1,V2", "Foos", Description = "Normal with parameters", ExpectedResult = "https://google.com/Foos?V1=R1&V2=R2")]
-        [TestCase("abc", "https://google.com", "Test", "", "Foos", Description = "Normal without parameters", ExpectedResult = "https://google.com/Foos")]
+        [TestCase("abc", "https://google.com", "Test", "V1,V2", "/Foos?", Description = "Normal with parameters", ExpectedResult = "https://google.com/Foos?V1=R1&V2=R2")]
+        [TestCase("abc", "https://google.com", "Test", "", "/Foos", Description = "Normal without parameters", ExpectedResult = "https://google.com/Foos")]
         [TestCase("abc", "https://google.com", "Test", "", "", Description = "Normal without parameters or uri ext", ExpectedResult = "https://google.com/")]
         public string BuildUri(
             string apiKey,
@@ -48,7 +48,7 @@ namespace OrleansTests.Client
             return result;
         }
 
-        [TestCase("abc", "https://google.com", "Test", "V1,V2,apiKey", "Foos", Description = "Normal with parameters", ExpectedResult = "https://google.com/Foos?V1=R1&V2=R2&apiKey=abc")]
+        [TestCase("abc", "https://google.com", "Test", "V1,V2,apiKey", "/Foos?", Description = "Normal with parameters", ExpectedResult = "https://google.com/Foos?V1=R1&V2=R2&apiKey=abc")]
         public string BuildUriWithApiKey(
             string apiKey,
             string baseURL,

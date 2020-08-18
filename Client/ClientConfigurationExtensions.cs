@@ -38,26 +38,22 @@ namespace Client
 
             return clientSource == default(ApiDataSource) || endPoint == default(ApiEndPoint)
                 ? throw new UriFormatException("Unable to construct an uri given the parameters")
-                : ConstructUri(clientSource, endPoint, updatedInputParams).Uri;
+                : ConstructUri(clientSource, endPoint, updatedInputParams);
         }
 
-        private static UriBuilder ConstructUri(
+        private static Uri ConstructUri(
             ApiDataSource apiDataSource, 
             ApiEndPoint apiEndPoint,
             IEnumerable<string> inputParameters)
         {
-            var parameters = apiEndPoint
-                .Parameters
-                .Where(w => !string.IsNullOrWhiteSpace(w))
-                .Zip(inputParameters, (a, b) => $"{a}={b}")
-                .DefaultIfEmpty(string.Empty)
-                .Aggregate((a, b) => $"{a}&{b}");
+            var query = apiEndPoint
+                    .Parameters
+                    .Where(w => !string.IsNullOrWhiteSpace(w))
+                    .Zip(inputParameters, (a, b) => $"{a}={b}")
+                    .DefaultIfEmpty(string.Empty)
+                    .Aggregate((a, b) => $"{a}&{b}");
 
-            return new UriBuilder(new Uri(apiDataSource.BaseURL))
-            {
-                Path = apiEndPoint.UriExtension,
-                Query = parameters,
-            };
+            return new Uri($"{apiDataSource.BaseURL}{apiEndPoint.UriExtension}{query}");
         }
     }
 }
