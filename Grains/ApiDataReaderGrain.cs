@@ -36,8 +36,9 @@ namespace Grains
         {
             var client = _clientFactory.CreateClient();
             var response = await client.GetAsync(url as string);
+            var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return result;
         }
     }
 }

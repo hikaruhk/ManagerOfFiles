@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Client.Controllers
 {
-    [Produces("application/json")]
     [Route("api/dataloader")]
     public class ApiDataReaderController : Controller
     {
