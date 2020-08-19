@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommandLine;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
@@ -11,19 +13,46 @@ namespace Silo
 {
     public class Program
     {
-        public static async Task Main(string[] _)
+        public static async Task Main(string[] args)
         {
-            var siloBuilder = new SiloHostBuilder()
-                .UseLocalhostClustering()
+            var result = Parser.Default
+                .ParseArguments<Options>(args)
+                .MapResult(r => r, e => throw new ArgumentException("Unable to parse commands!"));
+
+            var configs = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables()
+                .Build();
+
+            var siloHostBuilder = result switch
+            {
+                Options { Environment: EnvironmentType.SqlServerCluster } => 
+                    new SiloHostBuilder()
+                        .UseAdoNetClustering(options =>
+                        {
+                            options.ConnectionString = configs["connectionString"];
+                            options.Invariant = configs["connectionName"];
+                        }),
+                _ => new SiloHostBuilder().UseLocalhostClustering()
+            };
+
+            var siloBuilder = siloHostBuilder
+                .ConfigureAppConfiguration((_, configBuilder) =>
+                {
+                    configBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                })
                 .ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory())
                 .UseDashboard(options => { options.Port = 7777; })
                 .ConfigureServices(c => c.AddHttpClient())
                 .Configure<ClusterOptions>(options =>
                 {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "ManagerOfFilesSilo";
+                    options.ClusterId = configs["clusterId"];
+                    options.ServiceId = configs["serviceId"];
                 })
-                .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
+                .ConfigureEndpoints(
+                    IPAddress.Loopback,
+                    siloPort: configs.GetValue("siloPort", 7778),
+                    gatewayPort: configs.GetValue("gatewayPort", 7779))
                 .ConfigureLogging(logging => logging.AddConsole().SetMinimumLevel(LogLevel.Warning));
 
             using var host = siloBuilder.Build();

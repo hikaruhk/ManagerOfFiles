@@ -1,15 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using Client.Models;
+﻿using Client.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
+using System;
+using System.Threading.Tasks;
 
 namespace Client
 {
@@ -24,24 +23,28 @@ namespace Client
 
         private IClusterClient CreateOrleansClient()
         {
+            var orleansConfig = Configuration.GetSection("OrleansConfig");
+
             var client = new ClientBuilder()
-            .UseLocalhostClustering()
-            .Configure<ClusterOptions>(options =>
-            {
-                options.ClusterId = "dev";
-                options.ServiceId = "ManagerOfFilesSilo";
-            })
-            .ConfigureLogging(logging => logging.AddConsole())
-            .Build();
+                .UseLocalhostClustering(gatewayPort: orleansConfig.GetValue<int>("gatewayPort"))
+                .Configure<ClusterOptions>(options =>
+                {
+                    options.ClusterId = orleansConfig["clusterId"];
+                    options.ServiceId = orleansConfig["serviceId"];
+                })
+                .ConfigureLogging(logging => logging.AddConsole())
+                .Build();
 
-            client.Connect(async ex =>
-            {
-                Console.WriteLine(ex);
-                Console.WriteLine("Retrying...");
-                await Task.Delay(3000);
+                client
+                    .Connect(async ex =>
+                    {
+                        Console.WriteLine(ex);
+                        Console.WriteLine("Retrying...");
+                        await Task.Delay(3000);
 
-                return true;
-            }).Wait();
+                        return true;
+                    })
+                    .Wait();
 
             return client;
         }
